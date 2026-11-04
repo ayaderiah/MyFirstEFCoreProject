@@ -1,0 +1,161 @@
+﻿
+<div class="madar-nav" dir="rtl">
+
+    @* Brand *@
+    <div class="madar-brand">
+        <div class="madar-brand-icon">
+            ✦
+        </div>
+
+        <div class="madar-brand-text">
+            <h2>مَدار</h2>
+            <span>MADAR CRM</span>
+        </div>
+    </div>
+
+    @* Workspace label *@
+    <div class="madar-workspace">
+        <span class="madar-workspace-dot"></span>
+
+        <div>
+            <strong>مساحة إدارة العملاء</strong>
+            <small>نظام متكامل لإدارة البيانات</small>
+        </div>
+    </div>
+
+    <div class="madar-nav-section">
+        القائمة الرئيسية
+    </div>
+
+    <nav class="madar-nav-links">
+
+        @* Home page *@
+        <NavLink class="madar-nav-link"
+                 href=""
+                 Match="NavLinkMatch.All">
+
+            <span class="madar-link-icon">⌂</span>
+            <span>الرئيسية</span>
+
+        </NavLink>
+
+        @* Admin only *@
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+
+                <NavLink class="madar-nav-link"
+                         href="customers">
+
+                    <span class="madar-link-icon">▦</span>
+                    <span>إدارة العملاء</span>
+
+                </NavLink>
+
+            </Authorized>
+        </AuthorizeView>
+
+        @* Sub Admin only *@
+        <AuthorizeView Roles="SubAdmin">
+            <Authorized>
+
+                <NavLink class="madar-nav-link"
+                         href="manager/customers">
+
+                    <span class="madar-link-icon">▦</span>
+                    <span>عملائي</span>
+
+                </NavLink>
+
+            </Authorized>
+        </AuthorizeView>
+
+        @* Logged-in users *@
+        <AuthorizeView>
+            <Authorized>
+
+                <div class="madar-nav-section">
+                    حسابي
+                </div>
+
+                <NavLink class="madar-nav-link"
+                         href="Account/Manage">
+
+                    <span class="madar-link-icon">♙</span>
+                    <span>الملف الشخصي</span>
+
+                </NavLink>
+
+                @* Logout form *@
+                <form action="/Account/Logout"
+                      method="post"
+                      class="madar-logout-form">
+
+                    <AntiforgeryToken />
+
+                    <input type="hidden"
+                           name="ReturnUrl"
+                           value="/Account/Login" />
+
+                    <button type="submit"
+                            class="madar-nav-link madar-logout">
+
+                        <span class="madar-link-icon">⇥</span>
+                        <span>تسجيل الخروج</span>
+
+                    </button>
+
+                </form>
+
+            </Authorized>
+
+            <NotAuthorized>
+
+                <div class="madar-nav-section">
+                    الوصول إلى النظام
+                </div>
+
+                <NavLink class="madar-nav-link"
+                         href="Account/Login">
+
+                    <span class="madar-link-icon">↳</span>
+                    <span>تسجيل الدخول</span>
+
+                </NavLink>
+
+                <NavLink class="madar-nav-link"
+                         href="Account/Register">
+
+                    <span class="madar-link-icon">＋</span>
+                    <span>إنشاء حساب</span>
+
+                </NavLink>
+
+            </NotAuthorized>
+        </AuthorizeView>
+
+    </nav>
+
+    @* Sidebar bottom *@
+    <div class="madar-nav-bottom">
+
+        <div class="madar-help-card">
+
+            <div class="madar-help-icon">✧</div>
+
+            <strong>إدارة أكثر تنظيمًا</strong>
+
+            <p>
+                جميع أدوات إدارة العملاء
+                في مساحة عمل واحدة.
+            </p>
+
+        </div>
+
+        <div class="madar-sidebar-footer">
+            <span>مَدار CRM</span>
+            <span>الإصدار 1.0</span>
+        </div>
+
+    </div>
+
+</div>

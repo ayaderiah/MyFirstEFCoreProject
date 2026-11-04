@@ -1,0 +1,194 @@
+﻿@page "/Account/Login"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using CustomerManagement.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>تسجيل الدخول | مَدار</PageTitle>
+
+<div class="madar-login-page" dir="rtl">
+    <div class="madar-login-container">
+
+        <div class="madar-login-header">
+            <div class="madar-login-logo">✦</div>
+            <div class="madar-login-brand">
+                <strong>مَدار</strong>
+                <span>MADAR CRM</span>
+            </div>
+        </div>
+
+        <div class="madar-login-card">
+
+            <div class="madar-login-intro">
+                <div class="madar-login-badge">
+                    <span class="madar-status-dot"></span>
+                    بوابتك إلى مساحة العمل
+                </div>
+
+                <h1>أهلًا بعودتك!</h1>
+                <p>سجّل دخولك للمتابعة إلى نظام مَدار وإدارة أعمالك بكل سهولة وأمان.</p>
+            </div>
+
+            <StatusMessage Message="@errorMessage" />
+
+            <EditForm Model="Input"
+                      method="post"
+                      OnValidSubmit="LoginUser"
+                      FormName="login">
+
+                <DataAnnotationsValidator />
+
+                <div class="madar-validation">
+                    <ValidationSummary />
+                </div>
+
+                <div class="madar-form-group">
+                    <label for="login-email">البريد الإلكتروني</label>
+
+                    <div class="madar-input-wrapper">
+                        <InputText id="login-email"
+                                   @bind-Value="Input.Email"
+                                   class="madar-input"
+                                   type="email"
+                                   autocomplete="username"
+                                   dir="ltr"
+                                   placeholder="name@example.com" />
+                    </div>
+
+                    <ValidationMessage For="() => Input.Email" />
+                </div>
+
+                <div class="madar-form-group">
+                    <div class="madar-label-row">
+                        <label for="login-password">كلمة المرور</label>
+                        <a href="/Account/ForgotPassword"
+                           class="madar-forgot-link">
+                            نسيت كلمة المرور؟
+                        </a>
+                    </div>
+
+                    <div class="madar-input-wrapper">
+                        <InputText id="login-password"
+                                   type="password"
+                                   @bind-Value="Input.Password"
+                                   class="madar-input"
+                                   autocomplete="current-password"
+                                   dir="ltr"
+                                   placeholder="أدخل كلمة المرور" />
+                    </div>
+
+                    <ValidationMessage For="() => Input.Password" />
+                </div>
+
+                <div class="madar-remember-row">
+                    <label class="madar-remember-label">
+                        <InputCheckbox @bind-Value="Input.RememberMe" />
+                        <span>تذكرني على هذا الجهاز</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="madar-login-button">
+                    تسجيل الدخول ←
+                </button>
+
+            </EditForm>
+
+            <div class="madar-divider">
+                <span>ليس لديك حساب؟</span>
+            </div>
+
+            <a class="madar-register-button"
+               href="/Account/Register">
+                إنشاء حساب جديد
+            </a>
+
+            <div class="madar-confirm-link">
+                <a href="/Account/ResendEmailConfirmation">
+                    إعادة إرسال تأكيد البريد الإلكتروني
+                </a>
+            </div>
+
+        </div>
+
+        <div class="madar-login-footer">
+            <span>© 2026 مَدار — نظام إدارة العملاء</span>
+            <span>مساحة عمل أكثر تنظيمًا ✦</span>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            await HttpContext.SignOutAsync(
+                IdentityConstants.ExternalScheme);
+        }
+    }
+
+    public async Task LoginUser()
+    {
+        var result = await SignInManager.PasswordSignInAsync(
+            Input.Email,
+            Input.Password,
+            Input.RememberMe,
+            lockoutOnFailure: false);
+
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("User logged in.");
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            RedirectManager.RedirectTo(
+                "Account/LoginWith2fa",
+                new()
+                {
+                    ["returnUrl"] = ReturnUrl,
+                    ["rememberMe"] = Input.RememberMe
+                });
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.LogWarning("User account locked out.");
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            errorMessage = "Error: البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "يرجى إدخال البريد الإلكتروني.")]
+        [EmailAddress(ErrorMessage = "البريد الإلكتروني غير صحيح.")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "يرجى إدخال كلمة المرور.")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        public bool RememberMe { get; set; }
+    }
+}

@@ -1,0 +1,410 @@
+﻿
+.madar-profile {
+    --navy: #17243e;
+    --muted: #8793aa;
+    --purple: #7561e8;
+    --border: #e8ecf4;
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    color: var(--navy);
+    font-family: "Cairo", "Tajawal", "Segoe UI", sans-serif;
+    text-align: right;
+}
+
+    .madar-profile * {
+        box-sizing: border-box;
+    }
+
+.madar-profile-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.madar-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--purple);
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 9px;
+}
+
+.madar-eyebrow-dot,
+.madar-active-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #19bc96;
+    display: inline-block;
+}
+
+.madar-profile-heading h1 {
+    font-size: 29px;
+    font-weight: 800;
+    margin: 0 0 8px;
+}
+
+.madar-profile-heading p {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+.madar-profile-heading-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #7765eb, #a48cf6);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 29px;
+    box-shadow: 0 12px 24px rgba(117, 97, 232, .16);
+}
+
+.madar-profile-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.madar-panel,
+.madar-side-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 10px 35px rgba(20, 35, 65, .035);
+}
+
+.madar-panel-header,
+.madar-side-head {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.madar-panel-icon,
+.madar-side-symbol {
+    flex-shrink: 0;
+    width: 45px;
+    height: 45px;
+    background: #f0edff;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: var(--purple);
+    font-size: 23px;
+}
+
+.madar-panel-header h2,
+.madar-side-head h2 {
+    margin: 0 0 5px;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.madar-panel-header p,
+.madar-side-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.madar-account-preview {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    background: #f7f8fd;
+    border: 1px solid #eef0f7;
+    border-radius: 15px;
+    padding: 16px;
+    margin-bottom: 27px;
+}
+
+.madar-avatar {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #7261e8, #a18cf5);
+    display: grid;
+    place-items: center;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.madar-account-details {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .madar-account-details strong {
+        font-size: 13px;
+    }
+
+    .madar-account-details span {
+        font-size: 12px;
+        color: var(--muted);
+        overflow-wrap: anywhere;
+    }
+
+.madar-active-badge {
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    background: #e6f9f1;
+    color: #129873;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 10px;
+    border-radius: 30px;
+}
+
+.madar-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 23px;
+}
+
+    .madar-form-group label {
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+.madar-input {
+    display: block;
+    width: 100%;
+    height: 49px;
+    background: #fff;
+    border: 1px solid #dfe5f0;
+    border-radius: 11px;
+    padding: 0 15px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--navy);
+    text-align: left;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+    .madar-input:focus {
+        border-color: var(--purple);
+        box-shadow: 0 0 0 4px rgba(117, 97, 232, .1);
+    }
+
+.madar-readonly {
+    background: #f5f7fb;
+    color: #66738d;
+    cursor: not-allowed;
+}
+
+.madar-form-group small {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+.madar-validation,
+.madar-field-error {
+    color: #d74356;
+    font-size: 12px;
+}
+
+    .madar-validation:empty {
+        display: none;
+    }
+
+    .madar-validation ul {
+        margin: 0 0 15px;
+        padding-right: 20px;
+    }
+
+.madar-form-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+}
+
+.madar-security-note {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+    .madar-security-note span {
+        color: var(--purple);
+        font-size: 16px;
+        margin-left: 5px;
+    }
+
+.madar-save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #7561e8, #8d79f2);
+    color: #fff;
+    padding: 13px 21px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+}
+
+    .madar-save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 9px 20px rgba(117, 97, 232, .2);
+    }
+
+.madar-side {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.madar-side-card {
+    padding: 24px;
+}
+
+.madar-side-head {
+    margin-bottom: 16px;
+}
+
+.madar-settings-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 17px 3px;
+    text-decoration: none;
+    color: var(--navy);
+    border-bottom: 1px solid #eef0f5;
+    transition: color .2s;
+}
+
+    .madar-settings-link:last-child {
+        border-bottom: none;
+    }
+
+    .madar-settings-link:hover {
+        color: var(--purple);
+    }
+
+.madar-setting-icon {
+    flex-shrink: 0;
+    width: 37px;
+    height: 37px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #f2f0ff;
+    color: var(--purple);
+    font-size: 20px;
+}
+
+.madar-setting-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
+}
+
+    .madar-setting-copy strong {
+        font-size: 12px;
+    }
+
+    .madar-setting-copy small {
+        font-size: 10px;
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+.madar-link-arrow {
+    color: #a2aac0;
+}
+
+.madar-tip {
+    background: linear-gradient(145deg, #252c61, #393785);
+    color: #fff;
+    padding: 25px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.madar-tip-icon {
+    font-size: 30px;
+    color: #b6a6ff;
+    margin-bottom: 17px;
+}
+
+.madar-tip h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0 0 10px;
+}
+
+.madar-tip p {
+    font-size: 11px;
+    line-height: 2;
+    color: #d5d5fa;
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .madar-profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .madar-profile {
+        padding: 20px 12px 35px;
+    }
+
+    .madar-profile-heading h1 {
+        font-size: 23px;
+    }
+
+    .madar-panel,
+    .madar-side-card {
+        padding: 18px;
+    }
+
+    .madar-account-preview {
+        flex-wrap: wrap;
+    }
+
+    .madar-active-badge {
+        margin-right: 0;
+    }
+
+    .madar-form-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .madar-save-btn {
+        width: 100%;
+    }
+}

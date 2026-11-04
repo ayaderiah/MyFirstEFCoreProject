@@ -1,0 +1,209 @@
+﻿
+.madar-nav {
+    height: 100%;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    padding: 27px 18px 18px;
+    direction: rtl;
+    font-family: Tahoma, "Segoe UI", sans-serif;
+}
+
+
+.madar-brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 3px 8px 28px;
+}
+
+.madar-brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 49px;
+    height: 49px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #8f81ff, #6351db);
+    box-shadow: 0 8px 23px rgba(116,99,241,.25);
+    color: white;
+    font-size: 27px;
+}
+
+.madar-brand-text h2 {
+    margin: 0;
+    color: white;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.madar-brand-text span {
+    display: block;
+    font-size: 10px;
+    color: #9eaac5;
+    letter-spacing: 2px;
+    margin-top: 6px;
+}
+
+/* Workspace */
+
+.madar-workspace {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    background: #1c2945;
+    border: 1px solid #2b3955;
+    border-radius: 14px;
+    padding: 17px 12px;
+    margin-bottom: 27px;
+}
+
+.madar-workspace-dot {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    border-radius: 50%;
+    background: #45d3b3;
+    box-shadow: 0 0 0 5px rgba(69,211,179,.10);
+}
+
+.madar-workspace strong {
+    color: #e9edfa;
+    font-size: 11px;
+    font-weight: 700;
+    display: block;
+}
+
+.madar-workspace small {
+    color: #8999b8;
+    font-size: 10px;
+    display: block;
+    margin-top: 7px;
+}
+
+/* Navigation */
+
+.madar-nav-section {
+    color: #7184a6;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 0 15px;
+    margin: 9px 0 15px;
+    letter-spacing: .3px;
+}
+
+.madar-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+    .madar-nav-links ::deep .madar-nav-link {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 13px;
+        padding: 14px 15px;
+        border: none;
+        border-radius: 12px;
+        background: transparent;
+        color: #b8c5de;
+        text-decoration: none;
+        text-align: right;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .2s, color .2s;
+    }
+
+        .madar-nav-links ::deep .madar-nav-link:hover {
+            background: #253653;
+            color: white;
+        }
+
+        .madar-nav-links ::deep .madar-nav-link.active {
+            background: #7363e9;
+            color: white;
+            box-shadow: 0 5px 15px rgba(115,99,233,.20);
+        }
+
+.madar-link-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    min-width: 25px;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.madar-logout-form {
+    width: 100%;
+}
+
+.madar-logout {
+    font-family: inherit;
+}
+
+/* Bottom card */
+
+.madar-nav-bottom {
+    margin-top: auto;
+    padding-top: 30px;
+}
+
+.madar-help-card {
+    background: linear-gradient(145deg, #2e396c, #373375);
+    border: 1px solid rgba(171,168,255,.15);
+    border-radius: 16px;
+    padding: 20px 16px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+    .madar-help-card::after {
+        content: "✦";
+        position: absolute;
+        left: -14px;
+        top: -32px;
+        font-size: 95px;
+        color: rgba(255,255,255,.045);
+    }
+
+.madar-help-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.12);
+    border-radius: 11px;
+    width: 36px;
+    height: 36px;
+    color: #dcd6ff;
+    font-size: 22px;
+    margin-bottom: 13px;
+}
+
+.madar-help-card strong {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.madar-help-card p {
+    font-size: 10px;
+    line-height: 1.9;
+    color: #c4c9ed;
+    margin: 0;
+}
+
+.madar-sidebar-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 9px 5px;
+    font-size: 10px;
+    color: #7889a9;
+}

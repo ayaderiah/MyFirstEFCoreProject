@@ -1,0 +1,329 @@
+
+/* Main application shell */
+
+.madar-shell {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    direction: rtl;
+    background: #f5f7fc;
+    color: #1d2942;
+    font-family: Tahoma, "Segoe UI", sans-serif;
+}
+
+    .madar-shell * {
+        box-sizing: border-box;
+    }
+
+/* Sidebar */
+
+.madar-sidebar {
+    position: sticky;
+    top: 0;
+    width: 270px;
+    min-width: 270px;
+    height: 100vh;
+    overflow-y: auto;
+    background: #111b34;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #394664 transparent;
+}
+
+/* Main section */
+
+.madar-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top header */
+
+.madar-header {
+    height: 88px;
+    min-height: 88px;
+    padding: 0 36px;
+    background: #ffffff;
+    border-bottom: 1px solid #e8edf5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.madar-header-start,
+.madar-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.madar-header-eyebrow {
+    color: #8c96ab;
+    font-size: 11px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.madar-header-title h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a2641;
+}
+
+.madar-system-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 30px;
+    background: #ebfaf4;
+    color: #138666;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.madar-status-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background: #18ae80;
+    box-shadow: 0 0 0 4px #d0f5e5;
+}
+
+/* Account information */
+
+.madar-account {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-right: 20px;
+    border-right: 1px solid #e8edf5;
+}
+
+.madar-account-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #7464ef, #a08bff);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    font-weight: 800;
+    box-shadow: 0 5px 14px rgba(116, 100, 239, .18);
+}
+
+.madar-account-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+    .madar-account-info strong {
+        color: #25304b;
+        font-size: 12px;
+    }
+
+    .madar-account-info small {
+        font-size: 11px;
+        color: #8693ab;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: right;
+    }
+
+.madar-login-link {
+    padding: 11px 19px;
+    border-radius: 10px;
+    background: #7565eb;
+    color: white;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+    .madar-login-link:hover {
+        color: white;
+        background: #6252d9;
+    }
+
+/* Page content */
+
+.madar-content {
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+    padding: 30px 34px 40px;
+}
+
+    .madar-content ::deep .madar-page {
+        background: transparent;
+        padding: 0;
+    }
+
+/* Footer */
+
+.madar-global-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 34px;
+    background: #ffffff;
+    border-top: 1px solid #e9edf5;
+    color: #9aa5b9;
+    font-size: 11px;
+}
+
+/* Mobile menu */
+
+.madar-menu-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.madar-mobile-button {
+    display: none;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e8edf5;
+    border-radius: 11px;
+    background: #f8f9fe;
+    color: #28344c;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.madar-backdrop {
+    display: none;
+}
+
+/* Error notification */
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 9999;
+    background: #fff2f2;
+    color: #9e263b;
+    padding: 15px 25px;
+    border-top: 1px solid #f4ccd2;
+    box-shadow: 0 -5px 22px rgba(0,0,0,.08);
+}
+
+    #blazor-error-ui .reload {
+        margin-inline: 12px;
+    }
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        left: 20px;
+        top: 12px;
+    }
+
+/* Tablet */
+
+@media (max-width: 1100px) {
+    .madar-sidebar {
+        width: 240px;
+        min-width: 240px;
+    }
+
+    .madar-content {
+        padding: 24px;
+    }
+
+    .madar-header {
+        padding: 0 24px;
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 800px) {
+    .madar-sidebar {
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 280px;
+        height: 100dvh;
+        transform: translateX(105%);
+        transition: transform .25s ease;
+        box-shadow: -15px 0 40px rgba(0,0,0,.18);
+    }
+
+    .madar-menu-toggle:checked ~ .madar-sidebar {
+        transform: translateX(0);
+    }
+
+    .madar-menu-toggle:checked ~ .madar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(11,18,37,.55);
+        z-index: 99;
+    }
+
+    .madar-mobile-button {
+        display: flex;
+    }
+
+    .madar-header {
+        height: 75px;
+        min-height: 75px;
+        padding: 0 18px;
+    }
+
+    .madar-header-start,
+    .madar-header-actions {
+        gap: 12px;
+    }
+
+    .madar-header-title h2 {
+        font-size: 14px;
+    }
+
+    .madar-system-status {
+        display: none;
+    }
+
+    .madar-account {
+        border: none;
+        padding: 0;
+    }
+
+    .madar-account-info {
+        display: none;
+    }
+
+    .madar-account-avatar {
+        width: 39px;
+        height: 39px;
+    }
+
+    .madar-content {
+        padding: 20px 14px 30px;
+    }
+
+    .madar-global-footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 18px;
+        gap: 6px;
+    }
+}

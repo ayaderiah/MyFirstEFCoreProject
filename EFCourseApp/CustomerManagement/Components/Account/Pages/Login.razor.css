@@ -1,0 +1,290 @@
+﻿.madar-login-page {
+    --madar-purple: #7561e8;
+    --madar-navy: #19263f;
+    --madar-muted: #8993a9;
+    min-height: calc(100vh - 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: "Cairo", "Tajawal", "Segoe UI", sans-serif;
+    color: var(--madar-navy);
+    background: radial-gradient(circle at 15% 15%, #ece8ff 0, transparent 35%), radial-gradient(circle at 85% 80%, #e5f7f5 0, transparent 30%), #f5f7fc;
+}
+
+    .madar-login-page * {
+        box-sizing: border-box;
+    }
+
+.madar-login-container {
+    width: 100%;
+    max-width: 470px;
+}
+
+.madar-login-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 26px;
+}
+
+.madar-login-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: linear-gradient(135deg, #7360e9, #a18af8);
+    font-size: 28px;
+    box-shadow: 0 9px 22px rgba(117, 97, 232, .2);
+}
+
+.madar-login-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+    .madar-login-brand strong {
+        font-size: 23px;
+        font-weight: 800;
+    }
+
+    .madar-login-brand span {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 2.5px;
+        color: var(--madar-muted);
+    }
+
+.madar-login-card {
+    background: #fff;
+    border: 1px solid #e9edf5;
+    border-radius: 24px;
+    padding: 38px;
+    box-shadow: 0 22px 65px rgba(31, 45, 83, .08);
+}
+
+.madar-login-intro {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.madar-login-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    background: #f1efff;
+    border-radius: 30px;
+    color: #705ce0;
+    font-size: 11px;
+    font-weight: 800;
+    margin-bottom: 19px;
+}
+
+.madar-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22be9c;
+}
+
+.madar-login-intro h1 {
+    margin: 0 0 10px;
+    font-size: 29px;
+    font-weight: 800;
+    color: var(--madar-navy);
+}
+
+.madar-login-intro p {
+    font-size: 12px;
+    line-height: 2;
+    color: var(--madar-muted);
+    margin: 0;
+}
+
+.madar-form-group {
+    margin-bottom: 22px;
+}
+
+    .madar-form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+.madar-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+    .madar-label-row label {
+        margin-bottom: 10px;
+    }
+
+.madar-forgot-link {
+    font-size: 11px;
+    color: var(--madar-purple);
+    text-decoration: none;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.madar-input-wrapper {
+    position: relative;
+}
+
+    .madar-input-wrapper ::deep .madar-input {
+        width: 100%;
+        height: 50px;
+        border-radius: 11px;
+        padding: 0 15px;
+        border: 1px solid #dfe5f0;
+        background: #fbfcff;
+        font-size: 13px;
+        font-family: inherit;
+        color: var(--madar-navy);
+        text-align: left;
+        outline: none;
+        transition: .2s ease;
+    }
+
+        .madar-input-wrapper ::deep .madar-input:focus {
+            border-color: var(--madar-purple);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(117, 97, 232, .1);
+        }
+
+.madar-remember-row {
+    margin: 0 0 24px;
+}
+
+.madar-remember-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+    color: #647089;
+    cursor: pointer;
+}
+
+    .madar-remember-label ::deep input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--madar-purple);
+    }
+
+.madar-login-button {
+    width: 100%;
+    height: 52px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #7561e8, #907cf3);
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+    .madar-login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(117, 97, 232, .23);
+    }
+
+.madar-button-arrow {
+    font-size: 20px;
+}
+
+.madar-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 26px 0 18px;
+    color: #9aa4b6;
+    font-size: 11px;
+}
+
+    .madar-divider::before,
+    .madar-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #e9edf5;
+    }
+
+.madar-register-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 47px;
+    border-radius: 11px;
+    border: 1px solid #ded9fc;
+    background: #f7f5ff;
+    color: #715de0;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 800;
+    transition: .2s ease;
+}
+
+    .madar-register-button:hover {
+        background: #eeebff;
+        color: #5d4acb;
+    }
+
+.madar-confirm-link {
+    text-align: center;
+    margin-top: 22px;
+}
+
+    .madar-confirm-link a {
+        color: #929cb0;
+        text-decoration: none;
+        font-size: 11px;
+    }
+
+        .madar-confirm-link a:hover {
+            color: var(--madar-purple);
+        }
+
+.madar-validation {
+    color: #d74456;
+    font-size: 12px;
+}
+
+    .madar-validation:empty {
+        display: none;
+    }
+
+    .madar-validation ::deep ul {
+        padding-right: 20px;
+        margin-bottom: 16px;
+    }
+
+.madar-field-error {
+    color: #d74456;
+    font-size: 11px;
+}
+
+.madar-login-footer {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 10px;
+    color: #97a0b3;
+}

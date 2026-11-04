@@ -1,0 +1,989 @@
+﻿@page "/customers"
+@rendermode InteractiveServer
+
+@using EFCourseApp
+@using CustomerManagement.Data
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+
+@attribute [Authorize(Roles = "Admin")]
+
+@inject IDbContextFactory<CustomerDbContext> DbFactory
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>لوحة الإدارة | مَدار</PageTitle>
+
+<div class="adm" dir="rtl">
+
+    <div class="adm-intro">
+        <div>
+            <div class="eyebrow">
+                <span class="live-dot"></span>
+                مساحة الإدارة
+                <span class="crumb">/ نظرة عامة</span>
+            </div>
+
+            <h1>مركز إدارة العملاء <span class="wave">✦</span></h1>
+            <p>بيانات عملائك وتوزيع المهام بين المديرين، في مساحة عمل واحدة.</p>
+        </div>
+
+        <div class="intro-actions">
+            <button class="btn-light" @onclick="RefreshData">
+                ↻ تحديث البيانات
+            </button>
+            <button class="btn-primary" @onclick="OpenAddModal">
+                ＋ إضافة عميل
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(successMessage))
+    {
+        <div class="notice success" role="status">
+            ✓ @successMessage
+            <button @onclick="ClearSuccessMessage">×</button>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(pageError))
+    {
+        <div class="notice error" role="alert">
+            @pageError
+            <button @onclick="ClearPageError">×</button>
+        </div>
+    }
+
+    <div class="hero">
+        <div class="hero-copy">
+            <span class="hero-tag">✧ تحكم كامل في بياناتك</span>
+            <h2>رؤية أوضح، إدارة أذكى.</h2>
+            <p>
+                راقب توزيع العملاء، تابع المديرين،
+                واتخذ إجراءاتك من لوحة تحكم موحدة.
+            </p>
+            <button class="hero-outline"
+                    @onclick="() => showInsights = !showInsights">
+                @(showInsights ? "إخفاء التحليلات" : "استعراض التحليلات")
+                ←
+            </button>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+            <div class="ring ring-a"></div>
+            <div class="ring ring-b"></div>
+            <div class="hero-center">✦</div>
+            <div class="float-pill pill-a">● العملاء</div>
+            <div class="float-pill pill-b">↗ المديرون</div>
+        </div>
+    </div>
+
+    <div class="metrics">
+        <div class="metric">
+            <div class="metric-head">
+                <span>إجمالي العملاء</span>
+                <div class="metric-icon indigo">♧</div>
+            </div>
+            <strong>@customers.Count</strong>
+            <small>جميع العملاء المسجلين</small>
+            <div class="metric-foot">● قاعدة البيانات</div>
+        </div>
+
+        <div class="metric">
+            <div class="metric-head">
+                <span>العملاء المخصصون</span>
+                <div class="metric-icon mint">✓</div>
+            </div>
+            <strong>@AssignedCount</strong>
+            <small>لديهم مدير مسؤول</small>
+            <div class="metric-foot">
+                @(customers.Count == 0 ? 0 :
+                                Math.Round(AssignedCount * 100.0 / customers.Count))%
+                من الإجمالي
+            </div>
+        </div>
+
+        <div class="metric">
+            <div class="metric-head">
+                <span>عملاء بدون مدير</span>
+                <div class="metric-icon orange">◎</div>
+            </div>
+            <strong>@GeneralCount</strong>
+            <small>بانتظار التخصيص</small>
+            <div class="metric-foot">● عملاء عامّون</div>
+        </div>
+
+        <div class="metric">
+            <div class="metric-head">
+                <span>المديرون الفرعيون</span>
+                <div class="metric-icon blue">♙</div>
+            </div>
+            <strong>@managers.Count</strong>
+            <small>حسابات بدور مدير فرعي</small>
+            <div class="metric-foot">● في نظام الصلاحيات</div>
+        </div>
+    </div>
+
+    @if (showInsights)
+    {
+        <div class="insight-grid">
+
+            <section class="panel analytics-card">
+                <div class="panel-head">
+                    <div>
+                        <span class="kicker">توزيع العملاء</span>
+                        <h3>نظرة على التخصيص</h3>
+                        <p>مقارنة العملاء المخصصين بالعملاء العامّين</p>
+                    </div>
+                    <span class="subtle-tag">بيانات مباشرة</span>
+                </div>
+
+                <div class="donut-area">
+                    <div class="donut" style="@DonutStyle">
+                        <div class="donut-center">
+                            <strong>@customers.Count</strong>
+                            <span>عميل</span>
+                        </div>
+                    </div>
+
+                    <div class="donut-legend">
+                        <div>
+                            <span class="legend-label">
+                                <i class="legend-circle allocated"></i>
+                                مخصصون
+                            </span>
+                            <strong>@AssignedCount</strong>
+                        </div>
+
+                        <div>
+                            <span class="legend-label">
+                                <i class="legend-circle general"></i>
+                                بدون مدير
+                            </span>
+                            <strong>@GeneralCount</strong>
+                        </div>
+
+                        <div class="legend-summary">
+                            نسبة التخصيص
+                            <b>
+                                @(customers.Count == 0 ? 0 :
+                                                            Math.Round(AssignedCount * 100.0 /
+                                                            customers.Count))%
+                        </b>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+            <section class="panel analytics-card">
+                <div class="panel-head">
+                    <div>
+                        <span class="kicker">أداء التوزيع</span>
+                        <h3>العملاء حسب المدير</h3>
+                        <p>عدد العملاء المرتبطين بكل مدير فرعي</p>
+                    </div>
+                    <span class="subtle-tag">@managers.Count مدير</span>
+                </div>
+
+                <div class="bars">
+                @foreach (var manager in managers)
+                    {
+                        int managerCount = customers.Count(
+                        c => c.AssignedSubAdminId == manager.Id);
+
+                        double percentage = customers.Count == 0
+                        ? 0
+                        : managerCount * 100.0 / customers.Count;
+
+                        <div class="bar-item">
+                            <div class="bar-label">
+                                <span dir="ltr">@manager.Email</span>
+                                <strong>@managerCount</strong>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill"
+                                     style="width:@(percentage.ToString(System.Globalization.CultureInfo.InvariantCulture))%">
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span>عملاء عامّون</span>
+                            <strong>@GeneralCount</strong>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill bar-muted"
+                                 style="width:@(customers.Count == 0 ? "0" : (GeneralCount * 100.0 / customers.Count).ToString(System.Globalization.CultureInfo.InvariantCulture))%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    }
+
+    <section class="panel directory">
+        <div class="panel-head directory-head">
+            <div>
+                <span class="kicker">قاعدة بيانات العملاء</span>
+                <h3>دليل العملاء</h3>
+                <p>بحث، تصفية، تعديل، وتوزيع العملاء على المديرين.</p>
+            </div>
+            <span class="count-badge">
+                @FilteredCustomers.Count() نتيجة
+            </span>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-wrap">
+                <span>⌕</span>
+                <input placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                       aria-label="البحث في العملاء"
+                       @bind="searchText"
+                       @bind:event="oninput" />
+            </div>
+
+            <input class="field"
+                   placeholder="رقم العميل"
+                   aria-label="رقم العميل"
+                   @bind="searchId"
+                   @bind:event="oninput" />
+
+            <select class="field" @bind="managerFilter">
+                <option value="all">كل المديرين</option>
+                <option value="general">بدون مدير</option>
+                @foreach (var manager in managers)
+                {
+                    <option value="@manager.Id">@manager.Email</option>
+                }
+            </select>
+
+            <select class="field" @bind="sortOrder">
+                <option value="idAsc">الأقدم أولًا</option>
+                <option value="idDesc">الأحدث أولًا</option>
+                <option value="nameAsc">الاسم: أ - ي</option>
+                <option value="nameDesc">الاسم: ي - أ</option>
+            </select>
+
+            <button class="reset-btn" @onclick="ResetFilters">
+                ↺ إعادة ضبط
+            </button>
+        </div>
+
+        <div class="table-scroller">
+            <table class="customer-table">
+                <thead>
+                    <tr>
+                        <th>العميل</th>
+                        <th>رقم العميل</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>المدير المسؤول</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var customer in PageCustomers)
+                    {
+                        <tr>
+                            <td>
+                                <button class="customer-name-button"
+                                        @onclick="() => OpenDetails(customer)">
+                                    <span class="avatar">
+                                        @GetInitials(customer.Name)
+                                    </span>
+                                    <span class="customer-primary">
+                                        <strong>@customer.Name</strong>
+                                        <small>عرض التفاصيل ←</small>
+                                    </span>
+                                </button>
+                            </td>
+
+                            <td>
+                                <span class="id-chip">#@customer.Id</span>
+                            </td>
+
+                            <td>
+                                <span class="email" dir="ltr">
+                                    @customer.Email
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (string.IsNullOrEmpty(
+                                                            customer.AssignedSubAdminId))
+                                {
+                                    <span class="status-chip general">
+                                        ● عام
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-chip assigned">
+                                        ● @GetManagerName(
+                                                                        customer.AssignedSubAdminId)
+                            </span>
+                                                        }
+                            </td>
+
+                            <td>
+                                <div class="row-actions">
+                                    <button class="action edit"
+                                            @onclick="() => OpenEditModal(customer)">
+                                        تعديل
+                                    </button>
+                                    <button class="action delete"
+                                            @onclick="() => OpenDeleteModal(customer)">
+                                        حذف
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+                    @if (!FilteredCustomers.Any())
+                    {
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty">
+                                    <div class="empty-icon">⌕</div>
+                                    <h4>لا توجد نتائج مطابقة</h4>
+                                    <p>جرّبي تعديل البحث أو إزالة الفلاتر.</p>
+                                    <button class="reset-btn"
+                                            @onclick="ResetFilters">
+                                        مسح الفلاتر
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <span>
+                عرض @PageCustomers.Count() من
+                @FilteredCustomers.Count() عميل
+            </span>
+            <div>
+                <button disabled="@(EffectivePage == 1)"
+                        @onclick="PreviousPage">
+                    السابق
+                </button>
+                <span>صفحة @EffectivePage من @TotalPages</span>
+                <button disabled="@(EffectivePage == TotalPages)"
+                        @onclick="NextPage">
+                    التالي
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="adm-foot">
+        مَدار CRM · لوحة إدارة العملاء · البيانات من SQL Server
+    </div>
+</div>
+
+@* Customer details *@
+@if (selectedCustomer != null)
+{
+    <div class="drawer-overlay" dir="rtl">
+        <button class="drawer-scrim"
+                aria-label="إغلاق التفاصيل"
+                @onclick="CloseDetails"></button>
+
+        <aside class="drawer">
+            <div class="drawer-top">
+                <span class="kicker">ملف العميل</span>
+                <button class="icon-button"
+                        @onclick="CloseDetails">
+                    ×
+                </button>
+            </div>
+
+            <div class="drawer-profile">
+                <div class="drawer-avatar">
+                    @GetInitials(selectedCustomer.Name)
+                </div>
+                <h2>@selectedCustomer.Name</h2>
+                <p>رقم العميل #@selectedCustomer.Id</p>
+            </div>
+
+            <div class="drawer-data">
+                <div>
+                    <small>الاسم</small>
+                    <strong>@selectedCustomer.Name</strong>
+                </div>
+                <div>
+                    <small>البريد الإلكتروني</small>
+                    <strong dir="ltr">@selectedCustomer.Email</strong>
+                </div>
+                <div>
+                    <small>المدير المسؤول</small>
+                    <strong>
+                        @GetManagerName(selectedCustomer.AssignedSubAdminId)
+                    </strong>
+                </div>
+                <div>
+                    <small>حالة التخصيص</small>
+                    <strong>
+                        @(string.IsNullOrEmpty(selectedCustomer.AssignedSubAdminId)
+                                            ? "عميل عام"
+                                            : "عميل مخصص")
+                </strong>
+            </div>
+        </div>
+
+            <div class="drawer-bottom">
+                <button class="btn-primary"
+                        @onclick="EditSelectedCustomer">
+                    تعديل العميل
+                </button>
+                <button class="btn-light danger-text"
+                        @onclick="DeleteSelectedCustomer">
+                    حذف
+                </button>
+            </div>
+        </aside>
+    </div>
+}
+
+@* Add and Edit Modal *@
+@if (modalType == "add" || modalType == "edit")
+{
+    <div class="modal-overlay" dir="rtl">
+        <div class="admin-modal"
+             role="dialog"
+             aria-modal="true">
+
+            <div class="modal-top">
+                <div>
+                    <span class="kicker">إدارة العملاء</span>
+                    <h2>
+                        @(modalType == "add"
+                                            ? "إضافة عميل جديد"
+                                            : "تعديل بيانات العميل")
+                </h2>
+                <p>أدخلي البيانات وحددي المدير المسؤول عن العميل.</p>
+            </div>
+            <button class="icon-button"
+                    disabled="@isSaving"
+                    @onclick="CloseModal">
+                ×
+            </button>
+        </div>
+
+            <div class="modal-body">
+                <label>الاسم الكامل</label>
+                <input class="form-input"
+                       placeholder="اسم العميل"
+                       @bind="formCustomer.Name" />
+
+                <label>البريد الإلكتروني</label>
+                <input class="form-input"
+                       dir="ltr"
+                       type="email"
+                       placeholder="name@example.com"
+                       @bind="formCustomer.Email" />
+
+                <label>المدير المسؤول</label>
+                <select class="form-input"
+                        @bind="formCustomer.AssignedSubAdminId">
+                    <option value="">بدون مدير (عميل عام)</option>
+                @foreach (var manager in managers)
+                    {
+                        <option value="@manager.Id">@manager.Email</option>
+                    }
+                </select>
+
+                <div class="hint">
+                    ⓘ يمكن لمدير النظام تغيير التخصيص في أي وقت.
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="form-error" role="alert">
+                        @errorMessage
+                    </div>
+                }
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-light"
+                    disabled="@isSaving"
+                    @onclick="CloseModal">
+                إلغاء
+            </button>
+            <button class="btn-primary"
+                    disabled="@isSaving"
+                    @onclick="SaveCustomer">
+                @(isSaving
+                                ? "جارٍ الحفظ..."
+                                : modalType == "add"
+                                ? "إضافة العميل"
+                                : "حفظ التغييرات")
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+@* Delete Modal *@
+@if (modalType == "delete")
+{
+    <div class="modal-overlay" dir="rtl">
+        <div class="admin-modal compact" role="dialog" aria-modal="true">
+            <div class="modal-top">
+                <div>
+                    <span class="kicker danger-text">عملية حساسة</span>
+                    <h2>تأكيد حذف العميل</h2>
+                    <p>
+                        هل تريدين حذف @formCustomer.Name؟
+                        لا يمكن التراجع عن العملية.
+                    </p>
+                </div>
+                <button class="icon-button"
+                        disabled="@isSaving"
+                        @onclick="CloseModal">
+                    ×
+                </button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="form-error" role="alert">
+                    @errorMessage
+                </div>
+            }
+
+            <div class="modal-actions">
+                <button class="btn-light"
+                        disabled="@isSaving"
+                        @onclick="CloseModal">
+                    إلغاء
+                </button>
+                <button class="btn-danger"
+                        disabled="@isSaving"
+                        @onclick="DeleteCustomer">
+                    @(isSaving ? "جارٍ الحذف..." : "تأكيد الحذف")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<Customer> customers = new();
+    List<ApplicationUser> managers = new();
+
+    Customer formCustomer = new();
+    Customer? selectedCustomer;
+
+    string searchText = "";
+    string searchId = "";
+    string managerFilter = "all";
+    string sortOrder = "idDesc";
+    string modalType = "";
+    string errorMessage = "";
+    string pageError = "";
+    string successMessage = "";
+
+    bool isSaving = false;
+    bool showInsights = true;
+
+    int currentPage = 1;
+    int pageSize = 8;
+
+    int GeneralCount => customers.Count(
+        c => string.IsNullOrEmpty(c.AssignedSubAdminId));
+
+    int AssignedCount => customers.Count - GeneralCount;
+
+    string DonutStyle
+    {
+        get
+        {
+            double percent = customers.Count == 0
+                ? 0
+                : AssignedCount * 100.0 / customers.Count;
+
+            string value = percent.ToString(
+                System.Globalization.CultureInfo.InvariantCulture);
+
+            return $"background:conic-gradient(#7362E9 0% {value}%, #E8E6F8 {value}% 100%)";
+        }
+    }
+
+    async Task<bool> IsAdminAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        return state.User.Identity?.IsAuthenticated == true
+            && state.User.IsInRole("Admin");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await IsAdminAsync())
+            return;
+
+        await LoadCustomers();
+        await LoadManagers();
+    }
+
+    async Task LoadManagers()
+    {
+        if (!await IsAdminAsync())
+            return;
+
+        managers = (await UserManager
+            .GetUsersInRoleAsync("SubAdmin")).ToList();
+    }
+
+    async Task LoadCustomers()
+    {
+        if (!await IsAdminAsync())
+            return;
+
+        using var db = DbFactory.CreateDbContext();
+
+        customers = await db.Customers
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    async Task RefreshData()
+    {
+        try
+        {
+            await LoadCustomers();
+            await LoadManagers();
+            successMessage = "تم تحديث البيانات بنجاح.";
+            pageError = "";
+        }
+        catch
+        {
+            pageError = "تعذر تحديث البيانات.";
+        }
+    }
+
+    string GetManagerName(string? managerId)
+    {
+        if (string.IsNullOrEmpty(managerId))
+            return "بدون مدير";
+
+        return managers.FirstOrDefault(
+            m => m.Id == managerId)?.Email ?? "مدير غير معروف";
+    }
+
+    IEnumerable<Customer> FilteredCustomers
+    {
+        get
+        {
+            var result = customers.Where(c =>
+                ((c.Name ?? "").Contains(
+                    searchText, StringComparison.OrdinalIgnoreCase)
+                ||
+                (c.Email ?? "").Contains(
+                    searchText, StringComparison.OrdinalIgnoreCase))
+                &&
+                (string.IsNullOrWhiteSpace(searchId)
+                    || c.Id.ToString() == searchId.Trim())
+                &&
+                (managerFilter == "all" ||
+                    (managerFilter == "general"
+                        ? string.IsNullOrEmpty(c.AssignedSubAdminId)
+                        : c.AssignedSubAdminId == managerFilter))
+            );
+
+            if (sortOrder == "idAsc")
+                return result.OrderBy(c => c.Id);
+
+            if (sortOrder == "nameAsc")
+                return result.OrderBy(c => c.Name);
+
+            if (sortOrder == "nameDesc")
+                return result.OrderByDescending(c => c.Name);
+
+            return result.OrderByDescending(c => c.Id);
+        }
+    }
+
+    int TotalPages => Math.Max(
+        1,
+        (int)Math.Ceiling(FilteredCustomers.Count() / (double)pageSize));
+
+    int EffectivePage => Math.Min(currentPage, TotalPages);
+
+    IEnumerable<Customer> PageCustomers =>
+        FilteredCustomers
+            .Skip((EffectivePage - 1) * pageSize)
+            .Take(pageSize);
+
+    void NextPage()
+    {
+        if (EffectivePage < TotalPages)
+            currentPage = EffectivePage + 1;
+    }
+
+    void PreviousPage()
+    {
+        if (EffectivePage > 1)
+            currentPage = EffectivePage - 1;
+    }
+
+    void ResetFilters()
+    {
+        searchText = "";
+        searchId = "";
+        sortOrder = "idDesc";
+        managerFilter = "all";
+        currentPage = 1;
+    }
+
+    string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "؟";
+
+        var parts = name.Trim().Split(
+            ' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length >= 2)
+            return parts[0][0].ToString() + parts[1][0];
+
+        return parts[0][0].ToString();
+    }
+
+    void OpenDetails(Customer customer)
+    {
+        selectedCustomer = customer;
+    }
+
+    void CloseDetails()
+    {
+        selectedCustomer = null;
+    }
+
+    void EditSelectedCustomer()
+    {
+        if (selectedCustomer == null)
+            return;
+
+        var customer = selectedCustomer;
+        CloseDetails();
+        OpenEditModal(customer);
+    }
+
+    void DeleteSelectedCustomer()
+    {
+        if (selectedCustomer == null)
+            return;
+
+        var customer = selectedCustomer;
+        CloseDetails();
+        OpenDeleteModal(customer);
+    }
+
+    void OpenAddModal()
+    {
+        formCustomer = new Customer();
+        errorMessage = "";
+        modalType = "add";
+    }
+
+    void OpenEditModal(Customer customer)
+    {
+        formCustomer = new Customer
+        {
+            Id = customer.Id,
+            Name = customer.Name,
+            Email = customer.Email,
+            AssignedSubAdminId = customer.AssignedSubAdminId
+        };
+
+        errorMessage = "";
+        modalType = "edit";
+    }
+
+    void OpenDeleteModal(Customer customer)
+    {
+        formCustomer = new Customer
+        {
+            Id = customer.Id,
+            Name = customer.Name,
+            Email = customer.Email,
+            AssignedSubAdminId = customer.AssignedSubAdminId
+        };
+
+        errorMessage = "";
+        modalType = "delete";
+    }
+
+    void CloseModal()
+    {
+        if (isSaving)
+            return;
+
+        modalType = "";
+        errorMessage = "";
+    }
+
+    async Task SaveCustomer()
+    {
+        if (isSaving)
+            return;
+
+        if (!await IsAdminAsync())
+        {
+            errorMessage = "ليس لديك صلاحية تنفيذ العملية.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(formCustomer.Name) ||
+            string.IsNullOrWhiteSpace(formCustomer.Email))
+        {
+            errorMessage = "يرجى إدخال الاسم والبريد الإلكتروني.";
+            return;
+        }
+
+        if (!System.Net.Mail.MailAddress.TryCreate(
+            formCustomer.Email, out _))
+        {
+            errorMessage = "البريد الإلكتروني غير صالح.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(formCustomer.AssignedSubAdminId))
+        {
+            formCustomer.AssignedSubAdminId = null;
+        }
+        else
+        {
+            var manager = await UserManager.FindByIdAsync(
+                formCustomer.AssignedSubAdminId);
+
+            if (manager == null ||
+                !await UserManager.IsInRoleAsync(manager, "SubAdmin"))
+            {
+                errorMessage = "المدير المحدد غير صالح.";
+                return;
+            }
+        }
+
+        isSaving = true;
+
+        try
+        {
+            using var db = DbFactory.CreateDbContext();
+
+            if (modalType == "add")
+            {
+                db.Customers.Add(new Customer
+                {
+                    Name = formCustomer.Name.Trim(),
+                    Email = formCustomer.Email.Trim(),
+                    AssignedSubAdminId = formCustomer.AssignedSubAdminId
+                });
+            }
+            else if (modalType == "edit")
+            {
+                var customer = await db.Customers.FindAsync(
+                    formCustomer.Id);
+
+                if (customer == null)
+                {
+                    errorMessage = "العميل غير موجود.";
+                    return;
+                }
+
+                customer.Name = formCustomer.Name.Trim();
+                customer.Email = formCustomer.Email.Trim();
+                customer.AssignedSubAdminId =
+                    formCustomer.AssignedSubAdminId;
+            }
+            else
+            {
+                return;
+            }
+
+            await db.SaveChangesAsync();
+            await LoadCustomers();
+
+            modalType = "";
+            successMessage = "تم حفظ بيانات العميل بنجاح.";
+        }
+        catch
+        {
+            errorMessage = "تعذر حفظ البيانات. حاولي مجددًا.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    async Task DeleteCustomer()
+    {
+        if (isSaving)
+            return;
+
+        if (!await IsAdminAsync())
+        {
+            errorMessage = "ليس لديك صلاحية حذف هذا العميل.";
+            return;
+        }
+
+        isSaving = true;
+
+        try
+        {
+            using var db = DbFactory.CreateDbContext();
+
+            var customer = await db.Customers.FindAsync(
+                formCustomer.Id);
+
+            if (customer == null)
+            {
+                errorMessage = "العميل غير موجود.";
+                return;
+            }
+
+            db.Customers.Remove(customer);
+
+            await db.SaveChangesAsync();
+            await LoadCustomers();
+
+            modalType = "";
+            successMessage = "تم حذف العميل بنجاح.";
+        }
+        catch
+        {
+            errorMessage = "تعذر حذف العميل.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+
+    
+    void ClearSuccessMessage()
+    {
+        successMessage = "";
+    }
+
+    
+    void ClearPageError()
+    {
+        pageError = "";
+    }
+}
+

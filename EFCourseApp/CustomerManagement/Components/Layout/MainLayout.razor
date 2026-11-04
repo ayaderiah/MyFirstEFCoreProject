@@ -1,0 +1,111 @@
+﻿@inherits LayoutComponentBase
+
+<div class="madar-shell" dir="rtl">
+
+    @* Mobile menu control *@
+    <input type="checkbox"
+           id="madar-menu-toggle"
+           class="madar-menu-toggle" />
+
+    <label for="madar-menu-toggle"
+           class="madar-backdrop"></label>
+
+    @* Sidebar *@
+    <aside class="madar-sidebar">
+        <NavMenu />
+    </aside>
+
+    @* Main content *@
+    <div class="madar-main">
+
+        @* Top header *@
+        <header class="madar-header">
+
+            <div class="madar-header-start">
+
+                <label for="madar-menu-toggle"
+                       class="madar-mobile-button"
+                       title="فتح القائمة">
+                    ☰
+                </label>
+
+                <div class="madar-header-title">
+                    <span class="madar-header-eyebrow">
+                        مساحة العمل
+                    </span>
+
+                    <h2>مرحبًا بك في مَدار ✨</h2>
+                </div>
+
+            </div>
+
+            <div class="madar-header-actions">
+
+                <span class="madar-system-status">
+                    <span class="madar-status-dot"></span>
+                    النظام متصل
+                </span>
+
+                <AuthorizeView>
+                    <Authorized Context="auth">
+                        <div class="madar-account">
+
+                            <div class="madar-account-avatar">
+                                م
+                            </div>
+
+                            <div class="madar-account-info">
+
+                                <strong>
+                                    @if (auth.User.IsInRole("Admin"))
+                                    {
+                                        <span>مدير النظام</span>
+                                    }
+                                    else if (auth.User.IsInRole("SubAdmin"))
+                                    {
+                                        <span>المدير الفرعي</span>
+                                    }
+                                    else
+                                    {
+                                        <span>المستخدم</span>
+                                    }
+                                </strong>
+
+                                <small dir="ltr">
+                                    @auth.User.Identity?.Name
+                                </small>
+
+                            </div>
+                        </div>
+                    </Authorized>
+
+                    <NotAuthorized>
+                        <a class="madar-login-link"
+                           href="/Account/Login">
+                            تسجيل الدخول
+                        </a>
+                    </NotAuthorized>
+                </AuthorizeView>
+
+            </div>
+        </header>
+
+        @* Page body *@
+        <main class="madar-content">
+            @Body
+        </main>
+
+        @* Footer *@
+        <footer class="madar-global-footer">
+            <span>© 2026 مَدار — نظام إدارة العملاء</span>
+            <span>صُنع لتسهيل إدارة الأعمال</span>
+        </footer>
+
+    </div>
+</div>
+
+<div id="blazor-error-ui">
+    حدث خطأ غير متوقع.
+    <a href="" class="reload">إعادة التحميل</a>
+    <a class="dismiss">✕</a>
+</div>

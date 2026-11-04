@@ -1,0 +1,244 @@
+﻿@page "/Account/Manage"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using CustomerManagement.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>الملف الشخصي | مَدار</PageTitle>
+
+<div class="madar-profile" dir="rtl">
+
+    <div class="madar-profile-heading">
+        <div>
+            <div class="madar-eyebrow">
+                <span class="madar-eyebrow-dot"></span>
+                إدارة الحساب
+            </div>
+
+            <h1>ملفي الشخصي</h1>
+            <p>إدارة معلومات حسابك وإعداداتك الشخصية بأمان.</p>
+        </div>
+
+        <div class="madar-profile-heading-icon">
+            <span>✦</span>
+        </div>
+    </div>
+
+    <StatusMessage />
+
+    <div class="madar-profile-grid">
+
+        <section class="madar-panel">
+
+            <div class="madar-panel-header">
+                <div class="madar-panel-icon">
+                    ◈
+                </div>
+
+                <div>
+                    <h2>المعلومات الشخصية</h2>
+                    <p>عرض معلومات الحساب وتحديث رقم الهاتف.</p>
+                </div>
+            </div>
+
+            <div class="madar-account-preview">
+                <div class="madar-avatar">م</div>
+
+                <div class="madar-account-details">
+                    <strong>حساب مَدار</strong>
+                    <span dir="ltr">@username</span>
+                </div>
+
+                <span class="madar-active-badge">
+                    <span class="madar-active-dot"></span>
+                    حساب نشط
+                </span>
+            </div>
+
+            <EditForm Model="Input"
+                      FormName="profile"
+                      OnValidSubmit="OnValidSubmitAsync"
+                      method="post">
+
+                <DataAnnotationsValidator />
+
+                <div class="madar-validation">
+                    <ValidationSummary />
+                </div>
+
+                <div class="madar-form-group">
+                    <label for="profile-username">
+                        البريد الإلكتروني / اسم المستخدم
+                    </label>
+
+                    <input id="profile-username"
+                           type="text"
+                           value="@username"
+                           class="madar-input madar-readonly"
+                           dir="ltr"
+                           disabled />
+
+                    <small>
+                        هذا الحقل للعرض فقط. يمكنك تغيير بريدك من إعدادات البريد الإلكتروني.
+                    </small>
+                </div>
+
+                <div class="madar-form-group">
+                    <label for="profile-phone">
+                        رقم الهاتف
+                    </label>
+
+                    <InputText id="profile-phone"
+                               @bind-Value="Input.PhoneNumber"
+                               class="madar-input"
+                               dir="ltr"
+                               placeholder="05xxxxxxxx" />
+
+                    <ValidationMessage For="() => Input.PhoneNumber"
+                                       class="madar-field-error" />
+                </div>
+
+                <div class="madar-form-footer">
+                    <div class="madar-security-note">
+                        <span>♢</span>
+                        يتم حفظ التغييرات على حسابك فقط.
+                    </div>
+
+                    <button type="submit" class="madar-save-btn">
+                        حفظ التغييرات
+                        <span>←</span>
+                    </button>
+                </div>
+
+            </EditForm>
+
+        </section>
+
+        <aside class="madar-side">
+
+            <div class="madar-side-card">
+                <div class="madar-side-head">
+                    <div class="madar-side-symbol">✦</div>
+                    <div>
+                        <h2>أمان الحساب</h2>
+                        <p>التحكم بإعدادات تسجيل الدخول</p>
+                    </div>
+                </div>
+
+                <a href="/Account/Manage/Email"
+                   class="madar-settings-link">
+                    <span class="madar-setting-icon">✉</span>
+                    <span class="madar-setting-copy">
+                        <strong>البريد الإلكتروني</strong>
+                        <small>تعديل البريد المرتبط بالحساب</small>
+                    </span>
+                    <span class="madar-link-arrow">←</span>
+                </a>
+
+                <a href="/Account/Manage/ChangePassword"
+                   class="madar-settings-link">
+                    <span class="madar-setting-icon">⌑</span>
+                    <span class="madar-setting-copy">
+                        <strong>كلمة المرور</strong>
+                        <small>تحديث كلمة المرور الخاصة بك</small>
+                    </span>
+                    <span class="madar-link-arrow">←</span>
+                </a>
+
+                <a href="/Account/Manage/TwoFactorAuthentication"
+                   class="madar-settings-link">
+                    <span class="madar-setting-icon">◇</span>
+                    <span class="madar-setting-copy">
+                        <strong>المصادقة الثنائية</strong>
+                        <small>إعدادات الحماية الإضافية</small>
+                    </span>
+                    <span class="madar-link-arrow">←</span>
+                </a>
+
+                <a href="/Account/Manage/PersonalData"
+                   class="madar-settings-link">
+                    <span class="madar-setting-icon">▤</span>
+                    <span class="madar-setting-copy">
+                        <strong>البيانات الشخصية</strong>
+                        <small>عرض وإدارة بيانات حسابك</small>
+                    </span>
+                    <span class="madar-link-arrow">←</span>
+                </a>
+            </div>
+
+            <div class="madar-tip">
+                <div class="madar-tip-icon">✧</div>
+                <h3>حسابك، خصوصيتك</h3>
+                <p>
+                    يمكنك إدارة معلوماتك الشخصية بأمان من
+                    خلال هذه الصفحة، دون الوصول إلى
+                    بيانات المستخدمين الآخرين.
+                </p>
+            </div>
+
+        </aside>
+
+    </div>
+
+</div>
+
+@code {
+    private ApplicationUser user = default!;
+    private string? username;
+    private string? phoneNumber;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+
+        username = await UserManager.GetUserNameAsync(user);
+
+        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+
+        Input.PhoneNumber ??= phoneNumber;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (Input.PhoneNumber != phoneNumber)
+        {
+            var setPhoneResult = await UserManager.SetPhoneNumberAsync(
+                user,
+                Input.PhoneNumber
+            );
+
+            if (!setPhoneResult.Succeeded)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus(
+                    "Error: تعذر تحديث رقم الهاتف.",
+                    HttpContext
+                );
+            }
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+
+        RedirectManager.RedirectToCurrentPageWithStatus(
+            "تم تحديث معلومات ملفك الشخصي بنجاح.",
+            HttpContext
+        );
+    }
+
+    private sealed class InputModel
+    {
+        [Phone(ErrorMessage = "يرجى إدخال رقم هاتف صحيح.")]
+        [Display(Name = "رقم الهاتف")]
+        public string? PhoneNumber { get; set; }
+    }
+}

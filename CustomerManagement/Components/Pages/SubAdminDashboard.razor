@@ -1,0 +1,692 @@
+﻿@page "/manager/customers"
+@rendermode InteractiveServer
+
+@using EFCourseApp
+@using CustomerManagement.Data
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+
+@attribute [Authorize(Roles = "SubAdmin")]
+
+@inject IDbContextFactory<CustomerDbContext> DbFactory
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>لوحة المدير الفرعي | مَدار</PageTitle>
+
+<div class="madar-page" dir="rtl">
+
+    @* Page header *@
+    <div class="madar-topbar">
+        <div>
+            <div class="madar-path">
+                الرئيسية / لوحة المدير / العملاء
+            </div>
+
+            <h1>لوحة إدارة عملائي</h1>
+            <p>إدارة العملاء المخصصين لحسابك بكل سهولة.</p>
+        </div>
+
+        <div class="madar-profile">
+            <div class="madar-profile-icon">م</div>
+            <div>
+                <strong>المدير الفرعي</strong>
+                <small dir="ltr">@managerEmail</small>
+            </div>
+        </div>
+    </div>
+
+    @* Welcome banner *@
+    <div class="madar-hero">
+
+        <div class="madar-hero-content">
+            <span class="madar-hero-tag">
+                ✦ مساحة عمل المدير الفرعي
+            </span>
+
+            <h2>مرحبًا بعودتك إلى مَدار!</h2>
+
+            <p>
+                جميع عملائك في مكان واحد.
+                يمكنك متابعة بياناتهم وإضافة عملاء جدد
+                وتحديث معلوماتهم بسهولة وأمان.
+            </p>
+
+            <button class="madar-hero-button"
+                    @onclick="OpenAddModal">
+                <span>＋</span>
+                إضافة عميل جديد
+            </button>
+        </div>
+
+        <div class="madar-hero-art" aria-hidden="true">
+            <div class="madar-orbit orbit-one"></div>
+            <div class="madar-orbit orbit-two"></div>
+            <div class="madar-art-center">✦</div>
+        </div>
+
+    </div>
+
+    @* Statistics cards *@
+    <div class="madar-stats">
+
+        <div class="madar-stat">
+            <div class="madar-stat-icon purple">♧</div>
+            <div>
+                <span>إجمالي عملائي</span>
+                <h3>@customers.Count</h3>
+                <small>العملاء المخصصون لك</small>
+            </div>
+        </div>
+
+        <div class="madar-stat">
+            <div class="madar-stat-icon teal">⌕</div>
+            <div>
+                <span>نتائج البحث</span>
+                <h3>@FilteredCustomers.Count()</h3>
+                <small>العملاء المطابقون للبحث</small>
+            </div>
+        </div>
+
+        <div class="madar-stat">
+            <div class="madar-stat-icon amber">↗</div>
+            <div>
+                <span>أعلى رقم عميل</span>
+                <h3>
+                    @(customers.Count > 0
+                                        ? customers.Max(c => c.Id).ToString()
+                                        : "—")
+                </h3>
+                <small>ضمن عملائك الحاليين</small>
+            </div>
+        </div>
+
+    </div>
+
+    @* Success notification *@
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="madar-success" role="status">
+            ✓ @successMessage
+        </div>
+    }
+
+    @* Customer management panel *@
+    <div class="madar-panel">
+
+        <div class="madar-panel-header">
+            <div>
+                <span class="madar-section-label">
+                    قاعدة بيانات العملاء
+                </span>
+
+                <h2>دليل عملائي</h2>
+
+                <p>
+                    استعرض بيانات عملائك وابحث عنهم
+                    وعدّل معلوماتهم.
+                </p>
+            </div>
+
+            <span class="madar-count">
+                @FilteredCustomers.Count() عميل
+            </span>
+        </div>
+
+        @* Search and filters *@
+        <div class="madar-filters">
+
+            <div class="madar-search">
+                <span class="madar-search-symbol">⌕</span>
+
+                <input type="text"
+                       placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                       aria-label="البحث عن عميل"
+                       @bind="searchText"
+                       @bind:event="oninput" />
+            </div>
+
+            <input class="madar-input"
+                   type="text"
+                   placeholder="رقم العميل"
+                   aria-label="رقم العميل"
+                   @bind="searchId"
+                   @bind:event="oninput" />
+
+            <select class="madar-select"
+                    aria-label="ترتيب العملاء"
+                    @bind="sortOrder">
+
+                <option value="idAsc">الرقم: تصاعدي</option>
+                <option value="idDesc">الرقم: تنازلي</option>
+                <option value="nameAsc">الاسم: أ - ي</option>
+                <option value="nameDesc">الاسم: ي - أ</option>
+            </select>
+
+            <button class="madar-reset"
+                    @onclick="ResetFilters">
+                إعادة ضبط
+            </button>
+        </div>
+
+        @* Customers table *@
+        <div class="madar-table-wrapper">
+
+            <table class="madar-table">
+
+                <thead>
+                    <tr>
+                        <th>رقم العميل</th>
+                        <th>اسم العميل</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (FilteredCustomers.Any())
+                    {
+                        @foreach (var customer in PageCustomers)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="madar-customer-id">
+                                        #@customer.Id
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="madar-customer-info">
+
+                                        <div class="madar-avatar">
+                                            @GetInitials(customer.Name)
+                                        </div>
+
+                                        <div class="madar-customer-name">
+                                            <strong>
+                                                @customer.Name
+                                            </strong>
+
+                                            <small>
+                                                عميل مخصص لحسابك
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="madar-email" dir="ltr">
+                                        @customer.Email
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <button class="madar-edit"
+                                            @onclick="() => OpenEditModal(customer)">
+                                        ✎ تعديل
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="madar-empty">
+
+                                    <div class="madar-empty-icon">
+                                        ⌕
+                                    </div>
+
+                                    <h3>لا يوجد عملاء لعرضهم</h3>
+
+                                    <p>
+                                        لا توجد نتائج مطابقة للبحث،
+                                        أو لم يتم تخصيص عملاء لك بعد.
+                                    </p>
+
+                                    <button class="madar-reset"
+                                            @onclick="ResetFilters">
+                                        مسح الفلاتر
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+
+        @* Pagination *@
+        <div class="madar-pagination">
+
+            <span>
+                عرض @PageCustomers.Count() من أصل
+                @FilteredCustomers.Count() عميل
+            </span>
+
+            <div class="madar-page-controls">
+
+                <button disabled="@(EffectivePage == 1)"
+                        @onclick="PreviousPage">
+                    السابق
+                </button>
+
+                <span>
+                    الصفحة @EffectivePage من @TotalPages
+                </span>
+
+                <button disabled="@(EffectivePage == TotalPages)"
+                        @onclick="NextPage">
+                    التالي
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="madar-footer">
+        مَدار CRM · نظام إدارة العملاء
+    </div>
+
+</div>
+
+@* Add and Edit Modal *@
+@if (modalType == "add" || modalType == "edit")
+{
+    <div class="madar-overlay" dir="rtl">
+
+        <div class="madar-modal"
+             role="dialog"
+             aria-modal="true"
+             aria-label="إدارة بيانات العميل">
+
+            <div class="madar-modal-header">
+
+                <div>
+                    <span class="madar-section-label">
+                        إدارة العملاء
+                    </span>
+
+                    <h2>
+                        @(modalType == "add"
+                                            ? "إضافة عميل جديد"
+                                            : "تعديل بيانات العميل")
+                                                                </h2>
+
+                    <p>
+                        @(modalType == "add"
+                                            ? "أدخل بيانات العميل الجديد."
+                                            : "قم بتحديث معلومات العميل.")
+                </p>
+            </div>
+
+                <button class="madar-modal-close"
+                        disabled="@isSaving"
+                        @onclick="CloseModal">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="madar-modal-body">
+
+                <label for="customerName">
+                    اسم العميل الكامل
+                </label>
+
+                <input id="customerName"
+                       class="madar-form-control"
+                       placeholder="أدخل الاسم الكامل"
+                       @bind="formCustomer.Name" />
+
+                <label for="customerEmail">
+                    البريد الإلكتروني
+                </label>
+
+                <input id="customerEmail"
+                       class="madar-form-control"
+                       type="email"
+                       dir="ltr"
+                       placeholder="example@email.com"
+                       @bind="formCustomer.Email" />
+
+                <div class="madar-info-note">
+                    <span>ⓘ</span>
+                    هذا العميل مرتبط بحسابك،
+                    ولا يمكنك تغيير المدير المسؤول عنه.
+                </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="madar-error" role="alert">
+                        @errorMessage
+                    </div>
+                }
+
+        </div>
+
+        <div class="madar-modal-footer">
+
+            <button class="madar-cancel"
+                    disabled="@isSaving"
+                    @onclick="CloseModal">
+                إلغاء
+            </button>
+
+            <button class="madar-save"
+                    disabled="@isSaving"
+                    @onclick="SaveCustomer">
+
+                @(isSaving
+                                ? "جارٍ الحفظ..."
+                                : modalType == "add"
+                                ? "إضافة العميل"
+                                : "حفظ التغييرات")
+
+            </button>
+
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+
+    List<Customer> customers = new List<Customer>();
+
+    Customer formCustomer = new Customer();
+
+    string managerEmail = "";
+    string searchText = "";
+    string searchId = "";
+    string sortOrder = "idAsc";
+    string modalType = "";
+    string errorMessage = "";
+    string successMessage = "";
+
+    bool isSaving = false;
+
+    int currentPage = 1;
+    int pageSize = 8;
+
+    // Get the current manager ID
+    async Task<string?> GetManagerIdAsync()
+    {
+        var state = await AuthStateProvider
+            .GetAuthenticationStateAsync();
+
+        var principal = state.User;
+
+        if (principal.Identity?.IsAuthenticated != true ||
+            !principal.IsInRole("SubAdmin"))
+        {
+            return null;
+        }
+
+        string? userId = UserManager.GetUserId(principal);
+
+        if (string.IsNullOrEmpty(userId))
+            return null;
+
+        var user = await UserManager.FindByIdAsync(userId);
+
+        if (user == null ||
+            !await UserManager.IsInRoleAsync(user, "SubAdmin"))
+        {
+            return null;
+        }
+
+        return userId;
+    }
+
+    // Load page data
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider
+            .GetAuthenticationStateAsync();
+
+        managerEmail = state.User.Identity?.Name ?? "";
+
+        await LoadCustomers();
+    }
+
+    // Load only customers assigned to this manager
+    async Task LoadCustomers()
+    {
+        string? managerId = await GetManagerIdAsync();
+
+        if (managerId == null)
+        {
+            customers.Clear();
+            return;
+        }
+
+        using var db = DbFactory.CreateDbContext();
+
+        customers = await db.Customers
+            .AsNoTracking()
+            .Where(c => c.AssignedSubAdminId == managerId)
+            .OrderBy(c => c.Id)
+            .ToListAsync();
+    }
+
+    // Search and sort
+    IEnumerable<Customer> FilteredCustomers
+    {
+        get
+        {
+            var result = customers.Where(c =>
+                ((c.Name ?? "").Contains(
+                    searchText,
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                (c.Email ?? "").Contains(
+                    searchText,
+                    StringComparison.OrdinalIgnoreCase))
+                &&
+                (string.IsNullOrWhiteSpace(searchId)
+                    || c.Id.ToString() == searchId.Trim())
+            );
+
+            if (sortOrder == "idDesc")
+                return result.OrderByDescending(c => c.Id);
+
+            if (sortOrder == "nameAsc")
+                return result.OrderBy(c => c.Name);
+
+            if (sortOrder == "nameDesc")
+                return result.OrderByDescending(c => c.Name);
+
+            return result.OrderBy(c => c.Id);
+        }
+    }
+
+    // Pagination
+    int TotalPages
+    {
+        get
+        {
+            int count = FilteredCustomers.Count();
+
+            return Math.Max(
+                1,
+                (int)Math.Ceiling(count / (double)pageSize));
+        }
+    }
+
+    int EffectivePage => Math.Min(currentPage, TotalPages);
+
+    IEnumerable<Customer> PageCustomers =>
+        FilteredCustomers
+            .Skip((EffectivePage - 1) * pageSize)
+            .Take(pageSize);
+
+    void NextPage()
+    {
+        if (EffectivePage < TotalPages)
+            currentPage = EffectivePage + 1;
+    }
+
+    void PreviousPage()
+    {
+        if (EffectivePage > 1)
+            currentPage = EffectivePage - 1;
+    }
+
+    void ResetFilters()
+    {
+        searchText = "";
+        searchId = "";
+        sortOrder = "idAsc";
+        currentPage = 1;
+    }
+
+    // Get customer initials
+    string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "؟";
+
+        var parts = name.Trim().Split(
+            ' ',
+            StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length >= 2)
+        {
+            return parts[0].Substring(0, 1)
+                + parts[1].Substring(0, 1);
+        }
+
+        return parts[0].Substring(0, 1);
+    }
+
+    // Add Customer
+    void OpenAddModal()
+    {
+        formCustomer = new Customer();
+
+        errorMessage = "";
+        successMessage = "";
+        modalType = "add";
+    }
+
+    // Edit Customer
+    void OpenEditModal(Customer customer)
+    {
+        formCustomer = new Customer
+        {
+            Id = customer.Id,
+            Name = customer.Name,
+            Email = customer.Email
+        };
+
+        errorMessage = "";
+        successMessage = "";
+        modalType = "edit";
+    }
+
+    void CloseModal()
+    {
+        if (isSaving)
+            return;
+
+        modalType = "";
+        errorMessage = "";
+    }
+
+    // Save customer changes
+    async Task SaveCustomer()
+    {
+        if (isSaving)
+            return;
+
+        isSaving = true;
+        errorMessage = "";
+
+        try
+        {
+            string? managerId = await GetManagerIdAsync();
+
+            if (managerId == null)
+            {
+                errorMessage = "ليس لديك صلاحية تنفيذ هذه العملية.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(formCustomer.Name) ||
+                string.IsNullOrWhiteSpace(formCustomer.Email))
+            {
+                errorMessage = "يرجى إدخال الاسم والبريد الإلكتروني.";
+                return;
+            }
+
+            if (!System.Net.Mail.MailAddress.TryCreate(
+                formCustomer.Email, out _))
+            {
+                errorMessage = "يرجى إدخال بريد إلكتروني صحيح.";
+                return;
+            }
+
+            using var db = DbFactory.CreateDbContext();
+
+            if (modalType == "add")
+            {
+                // Assign new customer automatically
+                var newCustomer = new Customer
+                {
+                    Name = formCustomer.Name.Trim(),
+                    Email = formCustomer.Email.Trim(),
+                    AssignedSubAdminId = managerId
+                };
+
+                db.Customers.Add(newCustomer);
+            }
+            else if (modalType == "edit")
+            {
+                // Find customer owned by current manager
+                var customer = await db.Customers
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == formCustomer.Id &&
+                        c.AssignedSubAdminId == managerId);
+
+                if (customer == null)
+                {
+                    errorMessage =
+                        "العميل غير موجود أو لا تملك صلاحية تعديله.";
+                    return;
+                }
+
+                // Update allowed fields only
+                customer.Name = formCustomer.Name.Trim();
+                customer.Email = formCustomer.Email.Trim();
+            }
+            else
+            {
+                return;
+            }
+
+            await db.SaveChangesAsync();
+
+            await LoadCustomers();
+
+            modalType = "";
+            successMessage = "تم حفظ بيانات العميل بنجاح.";
+        }
+        catch (Exception)
+        {
+            errorMessage = "حدث خطأ أثناء حفظ البيانات.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}
